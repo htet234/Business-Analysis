@@ -221,4 +221,4 @@ if __name__ == '__main__':
         reset_entries_from_dataset()
         sys.exit(0)
     ensure_schema_updates()
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5003)
