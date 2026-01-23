@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>//not allow
+<head>
 <!--Htet is -->
 
     <meta charset="UTF-8">
@@ -62,7 +62,7 @@
         </div>
         <ul>
             <li><a href="javascript:void(0)" onclick="showSection('dashboard')"><i class="fa-solid fa-house"></i><span class="text">Dashboard</span></a></li>
-            <li><a href="javascript:void(0)" onclick="showSection('expense-page')"><i class="fas fa-file-alt"></i><span class="text">Manage Expense</span></a></li>
+            <li><a href="http://127.0.0.1:5001/"><i class="fas fa-file-alt"></i><span class="text">Manage cash</span></a></li>
             <li><a href="javascript:void(0)" onclick="showSection('income-page')"><i class="fas fa-file-invoice-dollar"></i><span class="text">Manage Income</span></a></li>
             <li><a href="javascript:void(0)" onclick="showSection('budget-page')"><i class="fas fa-wallet"></i> <span class="text">Manage Budget</span> </a></li>
             <li><a href="javascript:void(0)" onclick="showSection('report-page')"><i class="fas fa-paper-plane"></i><span class="text" id="report-link-text">Reports</span></a></li>
@@ -91,44 +91,8 @@
                 </table>
             </div>
         </div>
-<!--expense-->
-        <div id="expense-page" class="page-section">
-            <div class="manage-expense-card">
-                <h2 style="color: #3e2723;"><i class="fas fa-plus-circle"></i> Input Daily Expense Records</h2>
-                <div class="action-bar" style="margin: 20px 0; display: flex; gap: 10px;">
-                    <button class="btn-action btn-new" onclick="addNewRow()">+ Add Row</button>
-                    <button class="btn-action btn-del" id="master-del-btn" onclick="deleteSelectedRows()">Remove Selected</button>
-                </div>
-                <form id="bulkExpenseForm" onsubmit="saveFromPage(event)">
-                    <table class="premium-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
-                                <th>Description</th><th>Category</th><th>Date</th><th>Payer</th><th>Amount ($)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="input-rows"></tbody>
-                    </table>
-                    <div style="margin-top: 30px; text-align: right;">
-                        <button type="submit" class="btn-action btn-save">Confirm & Save Entries</button>
-                    </div>
-                </form>
-
-                <hr style="margin: 50px 0; border: 0; border-top: 2px dashed #ddd;">
-                <h2 style="color: #3e2723;"><i class="fas fa-history"></i> Current Expense Records</h2>
-                <div class="table-container">
-                    <table class="premium-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;"></th>
-                                <th>Description</th><th>Category</th><th>Date</th><th>Payer</th><th>Amount</th><th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="history-rows-manage"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div><!--expense-->
+<!-- Expense page replaced by external app -->
+ 
         <!--income-->
          <div id="income-page" class="page-section">
     <div class="manage-income-card">
