@@ -15,9 +15,11 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
 
     if (email === "owner@coffee.com" && pass === "admin123") {
         currentUserRole = "admin";
+         localStorage.setItem('coffee_user_role', 'admin');
         initSystem("Administrator");
     } else if (email === "sale@coffee.com" && pass === "sale123") {
         currentUserRole = "sale";
+         localStorage.setItem('coffee_user_role', 'sale');
         initSystem("Sale Person");
     } else {
         alert("Invalid credentials!");
@@ -34,7 +36,34 @@ function initSystem(roleName) {
 
     setupPermissions();
     updateUI();
+
+    // Handle deep linking
+if (window.location.hash) {
+    const sectionId = window.location.hash.substring(1);
+    const section = document.getElementById(sectionId);
+    if (section) {
+        showSection(sectionId);
+    }
 }
+}
+
+function logout() {
+    localStorage.removeItem('coffee_user_role');
+    location.reload();
+}
+// Auto-login check
+window.addEventListener('DOMContentLoaded', () => {
+    const savedRole = localStorage.getItem('coffee_user_role');
+    if (savedRole === 'admin') {
+        currentUserRole = 'admin';
+        initSystem('Administrator');
+    } else if (savedRole === 'sale') {
+        currentUserRole = 'sale';
+        initSystem('Sale Person');
+    }
+});
+
+
 
 function setupPermissions() {
     const isSale = currentUserRole === "sale";
