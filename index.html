@@ -61,7 +61,7 @@
         </div>
         <ul>
             <li><a href="javascript:void(0)" onclick="showSection('dashboard')"><i class="fa-solid fa-house"></i><span class="text">Dashboard</span></a></li>
-            <li><a href="http://127.0.0.1:5003/"><i class="fas fa-file-alt"></i><span class="text">Manage cash entry</span></a></li>
+            <li><a href="javascript:openCashEntry()"><i class="fas fa-file-alt"></i><span class="text">Manage cash entry</span></a></li>
             <li><a href="javascript:void(0)" onclick="showSection('budget-page')"><i class="fas fa-wallet"></i> <span class="text">Manage Budget</span> </a></li>
             <li><a href="javascript:void(0)" onclick="showSection('report-page')"><i class="fas fa-paper-plane"></i><span class="text" id="report-link-text">Reports</span></a></li>
             <li><a href="javascript:void(0)" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span class="text">Logout</span></a></li>
@@ -103,6 +103,11 @@
 
     <script src="newscript.js"></script>
     <script>
+    function openCashEntry() {
+        const role = localStorage.getItem('coffee_user_role') || 'sale';
+        window.location.href = `http://127.0.0.1:5003/?role=${role}`;
+    }
+
     function logout() {
         localStorage.removeItem('coffee_user_role');
         location.reload();
