@@ -53,6 +53,13 @@ function logout() {
 }
 // Auto-login check
 window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'logout') {
+        localStorage.removeItem('coffee_user_role');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+    }
+
     const savedRole = localStorage.getItem('coffee_user_role');
     if (savedRole === 'admin') {
         currentUserRole = 'admin';
