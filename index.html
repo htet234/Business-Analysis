@@ -2,11 +2,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coffee Cashflow - Submission System</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="side.css">
@@ -25,7 +27,7 @@
                     <p>Admin: owner@coffee.com / admin123<br>Sale: sale@coffee.com / sale123</p>
                 </div>
             </div>
-            //name
+         
             <div class="login-form-area">
                 <div class="form-inner">
                     <div class="logo-area">
@@ -60,11 +62,10 @@
         </div>
         <ul>
             <li><a href="javascript:void(0)" onclick="showSection('dashboard')"><i class="fa-solid fa-house"></i><span class="text">Dashboard</span></a></li>
-            <li><a href="javascript:void(0)" onclick="showSection('expense-page')"><i class="fas fa-file-alt"></i><span class="text">Manage Expense</span></a></li>
-            <li><a href="javascript:void(0)" onclick="showSection('income-page')"><i class="fas fa-file-invoice-dollar"></i><span class="text">Manage Income</span></a></li>
+            <li><a href="javascript:openCashEntry()"><i class="fas fa-file-alt"></i><span class="text">Manage cash entry</span></a></li>
             <li><a href="javascript:void(0)" onclick="showSection('budget-page')"><i class="fas fa-wallet"></i> <span class="text">Manage Budget</span> </a></li>
             <li><a href="javascript:void(0)" onclick="showSection('report-page')"><i class="fas fa-paper-plane"></i><span class="text" id="report-link-text">Reports</span></a></li>
-            <li><a href="javascript:void(0)" onclick="location.reload()"><i class="fas fa-sign-out-alt"></i><span class="text">Logout</span></a></li>
+            <li><a href="javascript:void(0)" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span class="text">Logout</span></a></li>
         </ul>
     </div>
 
@@ -89,105 +90,10 @@
                 </table>
             </div>
         </div>
-<!--expense-->
-        <div id="expense-page" class="page-section">
-            <div class="manage-expense-card">
-                <h2 style="color: #3e2723;"><i class="fas fa-plus-circle"></i> Input Daily Expense Records</h2>
-                <div class="action-bar" style="margin: 20px 0; display: flex; gap: 10px;">
-                    <button class="btn-action btn-new" onclick="addNewRow()">+ Add Row</button>
-                    <button class="btn-action btn-del" id="master-del-btn" onclick="deleteSelectedRows()">Remove Selected</button>
-                </div>
-                <form id="bulkExpenseForm" onsubmit="saveFromPage(event)">
-                    <table class="premium-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
-                                <th>Description</th><th>Category</th><th>Date</th><th>Payer</th><th>Amount ($)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="input-rows"></tbody>
-                    </table>
-                    <div style="margin-top: 30px; text-align: right;">
-                        <button type="submit" class="btn-action btn-save">Confirm & Save Entries</button>
-                    </div>
-                </form>
-
-                <hr style="margin: 50px 0; border: 0; border-top: 2px dashed #ddd;">
-                <h2 style="color: #3e2723;"><i class="fas fa-history"></i> Current Expense Records</h2>
-                <div class="table-container">
-                    <table class="premium-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;"></th>
-                                <th>Description</th><th>Category</th><th>Date</th><th>Payer</th><th>Amount</th><th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="history-rows-manage"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div><!--expense-->
+<!-- Expense page replaced by external app -->
+ 
         <!--income-->
-         <div id="income-page" class="page-section">
-    <div class="manage-income-card">
-        <h2 style="color: #3e2723;">
-            <i class="fas fa-plus-circle"></i> Input Daily Income Records
-        </h2>
-
-        <div class="action-bar" style="margin: 20px 0; display: flex; gap: 10px;">
-            <button class="btn-action btn-new" onclick="addNewIncomeRow()">+ Add Row</button>
-            <button class="btn-action btn-del" id="master-del-btn" onclick="deleteSelectedIncomeRows()">Remove Selected</button>
-        </div>
-
-        <form id="bulkIncomeForm" onsubmit="saveIncomeFromPage(event)">
-            <table class="premium-table">
-                <thead>
-                    <tr>
-                        <th style="width: 40px;">
-                            <input type="checkbox" id="selectAllIncome" onclick="toggleSelectAllIncome(this)">
-                        </th>
-                        <th>Description</th>
-                        <th>Category</th>
-                        <th>Date</th>
-                        <th>Receiver</th>
-                        <th>Amount ($)</th>
-        
-                    </tr>
-                </thead>
-                <tbody id="income-input-rows"></tbody>
-            </table>
-
-            <div style="margin-top: 30px; text-align: right;">
-                <button type="submit" class="btn-action btn-save">
-                    Confirm & Save Income
-                </button>
-            </div>
-        </form>
-
-        <hr style="margin: 50px 0; border: 0; border-top: 2px dashed #ddd;">
-
-        <h2 style="color: #3e2723;">
-            <i class="fas fa-history"></i> Current Income Records
-        </h2>
-
-        <div class="table-container">
-            <table class="premium-table">
-                <thead>
-                    <tr>
-                        <th style="width: 40px;"></th>
-                        <th>Description</th>
-                        <th>Category</th>
-                        <th>Date</th>
-                        <th>Receiver</th>
-                        <th>Amount</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="income-history-rows"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+      <!-- Sections for Expense and Income have been removed -->
 <!--income-->
 
         <div id="report-page" class="page-section">
@@ -197,5 +103,17 @@
     </div>
 
     <script src="newscript.js"></script>
+    <script>
+    function openCashEntry() {
+        const role = localStorage.getItem('coffee_user_role') || 'sale';
+        window.location.href = `http://127.0.0.1:5003/?role=${role}`;
+    }
+
+    function logout() {
+        localStorage.removeItem('coffee_user_role');
+        location.reload();
+    }
+</script>
+
 </body>
 </html>
