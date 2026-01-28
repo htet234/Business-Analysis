@@ -2,20 +2,26 @@ import os
 import sys
 import argparse
 import psycopg2
+import uuid
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from flask import Flask, render_template, request, redirect, url_for
-from datetime import date
+from flask import Flask, render_template, request, redirect, url_for, flash
+from datetime import date, datetime, timedelta
 import psycopg2.extras
 
 app = Flask(__name__)
+app.secret_key = 'supersecretkey'
 
 DB_NAME = "cafe_v2_db"
+REPORTING_DB_NAME = "coffeeshop_cashflow"
 DB_USER = "postgres"
 DB_PASSWORD = "postgresql"
 DB_HOST = "localhost"
 
 def get_db_connection():
     return psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
+
+def get_reporting_db_connection():
+    return psycopg2.connect(dbname=REPORTING_DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
 
 def create_database():
     conn = psycopg2.connect(dbname="postgres", user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
@@ -123,7 +129,10 @@ def reset_entries_from_dataset():
     conn.close()
 @app.route('/', methods=('GET', 'POST'))
 def add_data():
+    role = request.args.get('role', 'sale')
     if request.method == 'POST':
+        # Preserve role in redirect
+        
         date_entry = request.form['date']
         entry_type = request.form['entry_type']
         category = request.form['category']
@@ -143,7 +152,60 @@ def add_data():
         conn.commit()
         cur.close()
         conn.close()
-        return redirect(url_for('add_data'))
+
+        # --- SYNC PAYROLL TO REPORTING DB ---
+        if category == 'Payroll':
+            try:
+                r_conn = get_reporting_db_connection()
+                r_cur = r_conn.cursor()
+                # Insert into payroll_history. 
+                # Mapping: 
+                # description -> employee_name
+                # date_entry -> pay_date
+                # balance -> total_business_cost
+                # We also populate gross_pay/net_pay with the same amount or NULL as we don't have breakdown
+                # But main.py uses total_business_cost for reports.
+                r_cur.execute(
+                    """
+                    INSERT INTO payroll_history (employee_name, pay_date, total_business_cost, role)
+                    VALUES (%s, %s, %s, 'Employee')
+                    """,
+                    (description, date_entry, balance)
+                )
+                r_conn.commit()
+                r_cur.close()
+                r_conn.close()
+            except Exception as e:
+                print(f"Error syncing payroll: {e}")
+        else:
+            # --- SYNC OTHER ENTRIES TO REPORTING DB (checking_account_main) ---
+            try:
+                r_conn = get_reporting_db_connection()
+                r_cur = r_conn.cursor()
+                
+                # Map fields
+                # entry_type 'income' -> 'Credit', 'expense' -> 'Debit'
+                db_type = 'Credit' if entry_type == 'income' else 'Debit'
+                
+                # Generate a transaction ID
+                tx_id = f"TX-{uuid.uuid4().hex[:8].upper()}"
+                
+                # Insert into checking_account_main
+                r_cur.execute(
+                    """
+                    INSERT INTO checking_account_main (date, transaction_id, description, category, type, amount, balance)
+                    VALUES (%s, %s, %s, %s, %s, %s, 0)
+                    """,
+                    (date_entry, tx_id, description, category, db_type, balance)
+                )
+                r_conn.commit()
+                r_cur.close()
+                r_conn.close()
+            except Exception as e:
+                print(f"Error syncing to checking_account_main: {e}")
+        # ------------------------------------
+
+        return redirect(url_for('add_data', role=role))
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     month = request.args.get('month')
@@ -156,7 +218,7 @@ def add_data():
     if month:
         where.append("EXTRACT(MONTH FROM date) = %s")
         params.append(int(month))
-    sql = "SELECT id, date, entry_type, category, description, details, staff_name, balance FROM entries"
+    sql = "SELECT id, date, entry_type, category, description, details, staff_name, balance, created_at FROM entries"
     if where:
         sql += " WHERE " + " AND ".join(where)
     sql += " ORDER BY date DESC, id DESC"
@@ -190,7 +252,9 @@ def add_data():
     selected_year = int(year) if year else None
     return render_template(
         "add_data.html",
+        role=role,
         today=date.today(),
+        now=datetime.now(),
         transactions=rows,
         total_income=total_income,
         total_expense=total_expense,
@@ -199,6 +263,27 @@ def add_data():
         selected_month=selected_month,
         selected_year=selected_year
     )
+
+@app.route('/delete_entry/<int:id>', methods=['POST'])
+def delete_entry(id):
+    role = request.args.get('role', 'sale')
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    if role == 'sale':
+        cur.execute("SELECT created_at FROM entries WHERE id = %s", (id,))
+        result = cur.fetchone()
+        if result:
+            created_at = result[0]
+            if created_at and (datetime.now() - created_at > timedelta(hours=72)):
+                conn.close()
+                return "Error: Sales users can only delete entries within 72 hours.", 403
+    
+    cur.execute("DELETE FROM entries WHERE id = %s", (id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return redirect(url_for('add_data', role=role))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
