@@ -224,6 +224,11 @@ def add_data():
     sql += " ORDER BY date DESC, id DESC"
     cur.execute(sql, params)
     rows = cur.fetchall()
+
+    # Filter out Payroll entries for non-admin users (Sales Person)
+    if role != 'admin':
+        rows = [r for r in rows if r['category'] != 'Payroll']
+
     # Build description options per category from checking_account_main.csv dataset
     import csv, os
     csv_path = os.path.join(os.path.dirname(__file__), "checking_account_main.csv")
